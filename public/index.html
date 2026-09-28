@@ -1,46 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Geolocation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Location Finder</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            width: 500px;
+            margin: auto;
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .identity {
+            text-align: center;
+            color: #555;
+        }
+
+        .search {
+            display: flex;
+            gap: 10px;
+            margin: 25px 0;
+        }
+
+        input {
+            flex: 1;
+            padding: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        td:first-child {
+            font-weight: bold;
+            width: 35%;
+            background-color: #f5f5f5;
+        }
+
+        #status {
+            text-align: center;
+            color: #666;
+        }
+    </style>
 </head>
 
 <body>
-    <h3> Nama : Farhan Rasyid Mustaqim</h3>
-    <h3> NIM : 20240140102</h3>
 
-    <p>
-        Kota : 
-        <span id="lokasi"></span> 
-    </p>
+    <div class="container">
 
-    <hr>
+        <h1>Location Finder</h1>
 
-    <p>
-        Koordinat :
-        <span id="negara"></span>    
-    </p>
+        <div class="identity">
+            <p>Nama : Farhan Rasyid Mustaqim</p>
+            <p>NIM : 20240140102</p>
+        </div>
+
+        <div class="search">
+
+            <input
+                type="text"
+                id="inputLokasi"
+                placeholder="Enter any location"
+            >
+
+            <button onclick="getLokasi()">Search</button>
+
+        </div>
+
+        <p id="status">Enter a location to search.</p>
+
+        <table>
+
+            <tr>
+                <td>Lokasi</td>
+                <td id="lokasi">-</td>
+            </tr>
+
+            <tr>
+                <td>Negara</td>
+                <td id="negara">-</td>
+            </tr>
+
+            <tr>
+                <td>Provinsi</td>
+                <td id="provinsi">-</td>
+            </tr>
+
+            <tr>
+                <td>Kecamatan</td>
+                <td id="kecamatan">-</td>
+            </tr>
+
+            <tr>
+                <td>Longitude</td>
+                <td id="longitude">-</td>
+            </tr>
+
+            <tr>
+                <td>Latitude</td>
+                <td id="latitude">-</td>
+            </tr>
+
+        </table>
+
+    </div>
 
     <script>
-        fetch("/api/lokasi")
-            .then(response => response.json())
-            .then(data => {
-                
-                console.log(data);
 
-                document.getElementById("lokasi").innerHTML = data.kota;
+        function getLokasi() {
 
-                document.getElementById("negara").innerHTML = 
-                data.koordinat;
+            const kota = document.getElementById("inputLokasi").value;
 
-            })
-            .catch(error => {
+            if (kota === "") {
+                document.getElementById("status").innerHTML =
+                    "Please enter a location.";
+                return;
+            }
 
-                console.error(error);
+            document.getElementById("status").innerHTML =
+                "Loading...";
 
-            });
+            fetch(`/api/lokasi?kota=${encodeURIComponent(kota)}`)
+
+                .then(response => response.json())
+
+                .then(data => {
+
+                    console.log(data);
+
+                    if (data.message) {
+                        document.getElementById("status").innerHTML =
+                            data.message;
+                        return;
+                    }
+
+                    document.getElementById("status").innerHTML =
+                        "Data found.";
+
+                    document.getElementById("lokasi").innerHTML =
+                        data.lokasi;
+
+                    document.getElementById("negara").innerHTML =
+                        data.negara;
+
+                    document.getElementById("provinsi").innerHTML =
+                        data.provinsi;
+
+                    document.getElementById("kecamatan").innerHTML =
+                        data.kecamatan;
+
+                    document.getElementById("longitude").innerHTML =
+                        data.longitude;
+
+                    document.getElementById("latitude").innerHTML =
+                        data.latitude;
+
+                })
+
+                .catch(error => {
+
+                    console.error(error);
+
+                    document.getElementById("status").innerHTML =
+                        "Failed to get data.";
+
+                });
+        }
+
     </script>
 
 </body>
+
 </html>
